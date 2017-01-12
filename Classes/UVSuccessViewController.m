@@ -17,13 +17,14 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     self.view = [UIView new];
     self.view.frame = [self contentFrame];
-    self.view.backgroundColor = [UIColor colorWithRed:0.26f green:0.31f blue:0.35f alpha:1.0f];
+    self.view.backgroundColor = [UIColor colorWithRed:0.48 green:0.78 blue:0.94 alpha:1.0];
     UILabel *title = [UILabel new];
     title.text = _titleText;
     title.textColor = [UIColor whiteColor];
     title.font = [UIFont systemFontOfSize:26];
     title.textAlignment = NSTextAlignmentCenter;
     title.backgroundColor = [UIColor clearColor];
+    title.numberOfLines = 0;
     UILabel *text = [UILabel new];
     text.text = _text;
     text.textColor = [UIColor whiteColor];
@@ -48,9 +49,20 @@
     if ([UVSession currentSession].clientConfig.whiteLabel) {
         power.hidden = YES;
     }
+        
+    [self.view addConstraint:
+     [NSLayoutConstraint constraintWithItem:button
+                                      attribute:NSLayoutAttributeCenterY
+                                      relatedBy:NSLayoutRelationEqual
+                                         toItem:self.view
+                                      attribute:NSLayoutAttributeCenterY
+                                     multiplier:1
+                                       constant:0]];
+
+    
     [self configureView:self.view
                subviews:NSDictionaryOfVariableBindings(title, text, button, power)
-            constraints:@[@"|-[title]-|", @"|-40-[text]-40-|", @"[button(>=90)]", @"|-[power]-|", @"V:|-(>=20)-[title]-16-[text]-40-[button(==28)]-(>=40)-[power]-20-|"]];
+            constraints:@[@"|-[title]-|", @"|-40-[text]-40-|", @"[button(>=90)]", @"|-[power]-|", @"V:|-(>=8)-[title]-16-[text]-40-[button(==28)]-(>=40)-[power]|"]];
     NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:title attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:160];
     constraint.priority = UILayoutPriorityDefaultLow;
     [self.view addConstraint:constraint];

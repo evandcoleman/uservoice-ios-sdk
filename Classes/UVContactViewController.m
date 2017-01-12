@@ -38,12 +38,12 @@
     _instantAnswerManager.articleReturnMessage = NSLocalizedStringFromTableInBundle(@"Yes, go to my message", @"UserVoice", [UserVoice bundle], nil);
     _instantAnswerManager.deflectingType = @"Ticket";
 
-    self.navigationItem.title = NSLocalizedStringFromTableInBundle(@"Send us a message", @"UserVoice", [UserVoice bundle], nil);
+    self.navigationItem.title = @"How can we improve?";
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Back", @"UserVoice", [UserVoice bundle], nil) style:UIBarButtonItemStylePlain target:nil action:nil];
 
     // using a fields view with no fields extra still gives us better scroll handling
     _fieldsView = [UVTextWithFieldsView new];
-    _fieldsView.textView.placeholder = NSLocalizedStringFromTableInBundle(@"Give feedback or ask for help...", @"UserVoice", [UserVoice bundle], nil);
+    _fieldsView.textView.placeholder = @"Ask for help or share feedback with our team.";
     _fieldsView.textViewDelegate = self;
     [self configureView:view
                subviews:NSDictionaryOfVariableBindings(_fieldsView)
@@ -54,10 +54,10 @@
                                                                             target:self
                                                                             action:@selector(requestDismissal)];
 
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Next", @"UserVoice", [UserVoice bundle], nil)
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Send", @"UserVoice", [UserVoice bundle], nil)
                                                                               style:UIBarButtonItemStyleDone
                                                                              target:self
-                                                                             action:@selector(next)];
+                                                                             action:@selector(send)];
     [self loadDraft];
     self.navigationItem.rightBarButtonItem.enabled = ([_fieldsView.textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]].length > 0);
     self.view = view;
@@ -87,13 +87,19 @@
     }
 }
 
-- (void)next {
-    _proceed = YES;
-    [self showActivityIndicator];
-    [_instantAnswerManager search];
-    if (!_instantAnswerManager.loading) {
-        [self didUpdateInstantAnswers];
-    }
+- (void)send {
+    NSDictionary *uservoiceDict = @{
+                                    @"App": @{ @"id": @"planner-ios",
+                                               @"label": @"planner-ios"},
+                                    @"Category": @{ @"id": @"The Knot Planner app (Vendors + Checklist)",
+                                                    @"label": @"The Knot Planner app (Vendors + Checklist)"},
+                                    @"Mobile Device Model": @{ @"id": [UVSession currentSession].config.customFields[@"Mobile Device Model"],
+                                                               @"label": [UVSession currentSession].config.customFields[@"Mobile Device Model"]},
+                                    @"iOS Version": @{ @"id": [UVSession currentSession].config.customFields[@"iOS Version"],
+                                                       @"label": [UVSession currentSession].config.customFields[@"iOS Version"]}
+                                    };
+    
+    [self sendWithEmail:[UVSession currentSession].config.email name:[UVSession currentSession].config.displayName fields:uservoiceDict];
 }
 
 - (UIScrollView *)scrollView {
@@ -172,8 +178,8 @@
     [UVBabayaga track:SUBMIT_TICKET];
     UVSuccessViewController *next = [UVSuccessViewController new];
     next.firstController = self.firstController;
-    next.titleText = NSLocalizedStringFromTableInBundle(@"Message sent!", @"UserVoice", [UserVoice bundle], nil);
-    next.text = NSLocalizedStringFromTableInBundle(@"We'll be in touch.", @"UserVoice", [UserVoice bundle], nil);
+    next.titleText = @"Thank you for your feedback.";
+    next.text = @"We’ll be in touch as soon as possible regarding any issues you’re experiencing.";
     [self.navigationController setViewControllers:@[next] animated:YES];
 }
 
